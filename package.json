@@ -1,0 +1,20 @@
+{
+  "name": "@ngsocial/ngsocial",
+  "private": true,
+  "scripts": {
+    "codegen": "npx graphql-codegen --watch"
+  },
+  "dependencies": {
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/typescript-resolvers": "^4.0.1"
+  },
+  "devDependencies": {
+    "@parcel/watcher": "^2.3.0",
+    "lerna": "^7.1.1"
+  },
+  "version": "0.0.1",
+  "workspaces": [
+    "./packages/*"
+  ]
+}

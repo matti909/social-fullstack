@@ -1,0 +1,2 @@
+CREATE DATABASE IF NOT EXISTS social_db;
+GRANT ALL PRIVILEGES ON social_db.* TO 'matti'@'172.20.0.1' IDENTIFIED BY 'secret';
