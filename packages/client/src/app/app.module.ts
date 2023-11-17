@@ -10,6 +10,10 @@ import { SearchDialogComponent } from './core/components/search-dialog/search-di
 import { GraphQLModule } from './graphql.module';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -19,8 +23,19 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     PageNotFoundComponent,
     SearchDialogComponent,
   ],
-  imports: [BrowserModule, AppRoutingModule, AppRoutingModule, GraphQLModule, HttpClientModule, BrowserAnimationsModule],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    AppRoutingModule,
+    GraphQLModule,
+    HttpClientModule,
+    MatToolbarModule,
+    MatIconModule,
+    MatDialogModule,
+    MatSnackBarModule, 
+    BrowserAnimationsModule
+  ],
   providers: [],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }
