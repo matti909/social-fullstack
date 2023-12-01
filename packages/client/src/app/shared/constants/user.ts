@@ -1,4 +1,5 @@
 import { gql } from 'apollo-angular';
+import { USER_FIELDS_FRAGMENT } from './user.fragment';
 
 export const USER_QUERY = gql`
   query getUser($userId: ID!) {

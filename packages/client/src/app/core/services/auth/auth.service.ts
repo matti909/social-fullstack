@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
+import { CookieService } from 'ngx-cookie-service';
 import {
   User,
   RegisterResponse,
@@ -14,26 +15,26 @@ import {
   ACCESS_TOKEN,
   AUTH_USER
 } from 'src/app/shared';
-import { ApolloQueryResult } from '@apollo/client/core';
 
+import { ApolloQueryResult } from '@apollo/client/core';
+import { authState, GET_AUTH_STATE } from 'src/app/reactive';
 
 import { LoginGQL } from './graphql/login.service';
 import { RegisterGQL } from './graphql/register.service';
 import { GetUserGQL } from './graphql/getUser.service';
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  authState: Observable<AuthState>;
-  isLoggedInAsync: Observable<boolean>;
-  private readonly authSubject: BehaviorSubject<AuthState>;
-
   constructor(
     private apollo: Apollo,
     private registerGQL: RegisterGQL,
     private loginGQL: LoginGQL,
-    private getUserGQL: GetUserGQL) {
+    private getUserGQL: GetUserGQL,
+    private cookieService: CookieService
+  ) {
 
     const localToken = this.getLocalToken();
     let isLoggedIn = false;
@@ -41,27 +42,38 @@ export class AuthService {
       isLoggedIn = this.tokenExists() &&
         !this.tokenExpired(localToken);
     }
-    this.authSubject = new BehaviorSubject<AuthState>({
+    authState({
       isLoggedIn: isLoggedIn,
       currentUser: this.getLocalUser(),
       accessToken: localToken
     });
-    this.authState = this.authSubject.asObservable();
-    this.isLoggedInAsync = this.authState.pipe(map(state => state.isLoggedIn));
   }
 
-  get isLoggedIn(): boolean {
-    return this.authSubject.getValue().isLoggedIn;
+  get authState(): Observable<AuthState> {
+    return this.apollo.watchQuery<{ authState: AuthState }>({
+      query: GET_AUTH_STATE
+    }).valueChanges.pipe(map((qr: ApolloQueryResult<{ authState: AuthState }>) => qr.data.authState));
   }
-  get authUser(): User | null {
-    return this.authSubject.getValue().currentUser;
+
+  get isLoggedIn(): Observable<boolean> {
+    return this.apollo.watchQuery<{ authState: AuthState }>({
+      query: GET_AUTH_STATE
+    }).valueChanges.pipe(map((qr: ApolloQueryResult<{ authState: AuthState }>) => qr.data.authState.isLoggedIn));
+  }
+
+  get authUser(): Observable<User | null> {
+    return this.apollo.watchQuery<{ authState: AuthState }>({
+      query: GET_AUTH_STATE
+    }).valueChanges.pipe(map((qr: ApolloQueryResult<{ authState: AuthState }>) => qr.data.authState.currentUser));
   }
 
   getLocalToken(): string | null {
-    return localStorage.getItem(ACCESS_TOKEN);
+    return localStorage.getItem(ACCESS_TOKEN) &&
+      this.cookieService.get(ACCESS_TOKEN) || null; // get para cookies
   }
 
   storeUser(user: User): void {
+    this.cookieService.set(AUTH_USER, JSON.stringify(user)); //set para cookie
     localStorage.setItem(AUTH_USER,
       JSON.stringify(user));
   }
@@ -87,7 +99,7 @@ export class AuthService {
   private updateAuthState(token: string, user: User) {
     this.storeToken(token);
     this.storeUser(user);
-    this.authSubject.next({
+    authState({
       isLoggedIn: true,
       currentUser: user,
       accessToken: token
@@ -95,11 +107,11 @@ export class AuthService {
   }
 
   private resetAuthState() {
-    this.authSubject.next({
+    authState({
       isLoggedIn: false,
       currentUser: null,
       accessToken: null
-    })
+      });
   }
 
   register(
