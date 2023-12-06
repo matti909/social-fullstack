@@ -1,18 +1,15 @@
-import "dotenv/config";
-import path from "path";
 import { DataSource, DataSourceOptions } from "typeorm";
 import { SnakeNamingStrategy } from "typeorm-naming-strategies";
 
-import dotenv from "dotenv";
+import "dotenv/config";
 
-dotenv.config({ path: path.join(__dirname, "..", ".env") });
 export const DataSourceConfig: DataSourceOptions = {
   type: "mysql",
   host: process.env.MYSQLDB_HOST,
   port: Number(process.env.MYSQLDB_LOCAL_PORT),
-  username: process.env.MYSQLDB_USER,
+  username: process.env.MYSQL_ROOT_USER,
   password: process.env.MYSQL_ROOT_PASSWORD,
-  database: process.env.MYSQLDB_DATABASE,
+  database: process.env.MYSQL_DATABASE,
   synchronize: true,
   logging: false,
   entities: ["src/entity/**/*.ts"],

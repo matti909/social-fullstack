@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Query } from 'apollo-angular';
-import { UserResponse, USER_QUERY } from 'src/app/shared';
+import { UserResponse} from 'src/app/shared';
+import { USER_QUERY } from 'src/app/shared/constants/user';
 
 @Injectable({
   providedIn: 'root',

@@ -1,11 +1,12 @@
 import "reflect-metadata";
 import express, { Application } from "express";
 import { ApolloServer } from "apollo-server-express";
-import cors from "cors";
 import dotenv from "dotenv";
 import jwt from "jsonwebtoken";
 import path from "path";
 import morgan from 'morgan'
+import bodyParser from "body-parser";
+import cookieParser from 'cookie-parser'
 import { Repository } from "typeorm";
 import { AppDS } from "./config/ormconfig";
 import { Comment, Like, Notification, Post, User } from "./entity";
@@ -42,7 +43,22 @@ async function startApolloServer() {
 
   try {
     const app: Application = express();
-    app.use(cors());
+    app.use(bodyParser.urlencoded({ extended: true, limit: "50mb" }));
+    app.use(bodyParser.json({ limit: "50mb" }));
+    app.use(cookieParser());
+    app.use((req, res, next) => {
+      res.header(
+        "Access-Control-Allow-Origin",
+        "*"
+      ); // update to match the domain you will make the request from
+      res.header("Access-Control-Allow-Credentials", "true");
+      res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept"
+      );
+      res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
+      next();
+    });
     app.use(morgan('dev'))
     app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }))
 

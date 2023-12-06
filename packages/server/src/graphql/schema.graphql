@@ -72,20 +72,22 @@ type AuthPayload {
 }
 
 type Mutation {
-  post(text: String, image: String): Post
-  removePost(id: ID!): ID
-  comment(comment: String!, postId: ID!): Comment
-  removeComment(id: ID!): Comment
-  like(postId: ID!): Like
-  removeLike(postId: ID!): Like
-  removeNotification(id: ID!): ID
+  post(text: String, image: String): Post @auth
+  removePost(id: ID!): ID @auth
+  comment(comment: String!, postId: ID!): Comment @auth
+  removeComment(id: ID!): Comment @auth
+  like(postId: ID!): Like @auth
+  removeLike(postId: ID!): Like @auth
+  removeNotification(id: ID!): ID @auth
   register(
     fullName: String!
     username: String!
     email: String!
     password: String!
   ): AuthPayload!
-
   signIn(email: String!, password: String!): AuthPayload!
-  uploadFile(file: Upload!): File!
+  uploadFile(file: Upload!): File @auth
+  setUserPhoto(file: Upload!): User @auth
+  setUserCover(file: Upload!): User @auth
+  setUserBio(bio: String!): User @auth
 }

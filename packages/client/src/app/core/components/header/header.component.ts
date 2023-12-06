@@ -51,34 +51,4 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.router.navigateByUrl('/users/login');
   }
 
-  searchUsers(): void {
-    const searchText = this.searchInput?.nativeElement.value;
-    if (searchText == '') {
-      this.snackBar.open('Please enter a search term', 'Ok', {
-        duration: 5 * 1000
-      });
-      return;
-    }
-    const result: SearchUsersResponse = this.authService.searchUsers(searchText, 0, 10);
-    const dialogConfig = new MatDialogConfig<SearchUsersResponse>();
-    dialogConfig.data = result;
-    /*
-    - We subscribe to the Observable to fetch data and check if any users are found
-    before we open the dialog.
-    - We unsubscribe using the first() operator.
-    - We change the fetch policy to 'cache-first' in the AuthService' searchUsers() method
-    to avoid sending multiple requests since we are subscribing to this Observable
-    in the dialog component too.
-    */
-    result.data.pipe(first()).subscribe((data: UsersResponse) => {
-
-      if (data.searchUsers.length > 0) this.matDialog.open(SearchDialogComponent, dialogConfig);
-      else {
-        this.snackBar.open('No users found with this search term', 'Ok', {
-          duration: 5 * 1000
-        });
-      }
-    });
-
-  }
 }

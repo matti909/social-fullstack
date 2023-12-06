@@ -9,5 +9,5 @@ export type UsersResponse = {
 };
 export type SearchUsersResponse = {
   data: Observable<UsersResponse>;
-  fetchMore: (users: User[]) => void
+  fetchMore: (users: User[]) => void;
 };

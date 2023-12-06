@@ -1,9 +1,11 @@
 import { gql } from 'apollo-angular';
+import { USER_FIELDS_FRAGMENT } from './user.fragment';
 
 export const ACCESS_TOKEN: string = 'accessToken';
 export const AUTH_USER: string = 'authUser';
 
 export const REGISTER_MUTATION = gql`
+  ${USER_FIELDS_FRAGMENT}
   mutation register(
     $fullName: String!
     $username: String!
@@ -23,7 +25,9 @@ export const REGISTER_MUTATION = gql`
     }
   }
 `;
+
 export const LOGIN_MUTATION = gql`
+  ${USER_FIELDS_FRAGMENT}
   mutation signIn($email: String!, $password: String!) {
     signIn(email: $email, password: $password) {
       token
