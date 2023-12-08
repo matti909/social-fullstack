@@ -43,6 +43,10 @@ export class AuthService {
     if (localToken) {
       isLoggedIn = this.tokenExists() && !this.tokenExpired(localToken);
     }
+    if(!isLoggedIn){
+      localStorage.removeItem(ACCESS_TOKEN);
+      localStorage.removeItem(AUTH_USER);
+      }
     if (!isLoggedIn) {
       localStorage.removeItem(ACCESS_TOKEN);
       localStorage.removeItem(AUTH_USER);

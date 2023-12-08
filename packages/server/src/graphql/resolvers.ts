@@ -12,20 +12,17 @@ import dotenv from "dotenv";
 import jsonwebtoken from "jsonwebtoken";
 import { DeleteResult, QueryFailedError } from "typeorm";
 import { Context } from "..";
-import {
-  Post as PostEntity
-} from "../entity";
+import { Post as PostEntity } from "../entity";
 import { GraphQLUpload } from "graphql-upload-ts";
 
 dotenv.config();
-import AWS from 'aws-sdk';
+import AWS from "aws-sdk";
 const spacesEndpoint = new AWS.Endpoint(process.env.S3_ENDPOINT as string);
 const s3 = new AWS.S3({
   endpoint: spacesEndpoint,
   accessKeyId: process.env.S3_ACCESS_KEY_ID,
-  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
 });
-
 
 const hashPassword = async (plainPassword: string): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -55,7 +52,6 @@ const compareToHash = async (
 };
 
 const resolvers: Resolvers = {
-
   Upload: GraphQLUpload,
 
   Query: {
@@ -304,7 +300,12 @@ const resolvers: Resolvers = {
     uploadFile: async (_, { file }) => {
       const { createReadStream, filename, mimetype, encoding } = await file;
       const fileStream = createReadStream();
-      const uploadParams = { Bucket: process.env.S3_BUCKET as string, Key: filename, Body: fileStream, ACL: "public-read" };
+      const uploadParams = {
+        Bucket: process.env.S3_BUCKET as string,
+        Key: filename,
+        Body: fileStream,
+        ACL: "public-read",
+      };
       const result = await s3.upload(uploadParams).promise();
       console.log(result);
       const url = result.Location;

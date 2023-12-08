@@ -11,3 +11,5 @@ export * from './services/auth/graphql/register.service';
 export * from './services/auth';
 export * from './services';
 export * from './services/post/post.service';
+
+export { ProfileService } from '../users/services/profile/profile.service';

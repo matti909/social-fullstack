@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
-import { CreatePostGQL, RemovePostGQL, UploadFileGQL } from 'src/app/core';
-
+import { CreatePostGQL, RemovePostGQL, UploadFileGQL } from '../../gql.services';
 @Injectable({
   providedIn: 'root',
 })
