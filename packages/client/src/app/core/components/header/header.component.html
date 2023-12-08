@@ -1,26 +1,66 @@
 <mat-toolbar>
   <mat-toolbar-row>
     <h1>ngSocial</h1>
-    <div *ngIf="isLoggedIn">
-     
+    <div *ngIf="authService.isLoggedIn">
+      <input
+        class="searchbar"
+        type="text"
+        placeholder="Search"
+        #searchInput
+        matInput
+      />
+      <button mat-icon-button (click)="searchUsers()">
+        <mat-icon>search</mat-icon>
+      </button>
     </div>
     <span class="spacer"></span>
-    <button *ngIf="authService.isLoggedIn" mat-icon-button matTooltip="Notifications">
+    <button
+      *ngIf="authService.isLoggedIn"
+      mat-icon-button
+      matTooltip="Notifications"
+    >
       <mat-icon aria-hidden="false" aria- label="Notifications">
-        notifications</mat-icon>
+        notifications</mat-icon
+      >
     </button>
-    <button *ngIf="isLoggedIn" mat-icon-button matTooltip="My profile"
-      routerLink="/users/profile/{{authUser?.id}}">
-      <mat-icon aria-hidden="false" aria-label="Myprofile">person</mat-icon>
+    <button
+      *ngIf="authService.isLoggedIn"
+      mat-icon-button
+      matTooltip="My profile"
+      routerLink="/users/profile/{{authService.authUser?.
+id}
+}"
+    >
+      <mat-icon
+        aria-hidden="false"
+        aria-label="My
+profile"
+        >person</mat-icon
+      >
     </button>
-
-    <button *ngIf="isLoggedIn" mat-icon-button matTooltip="Home" routerLink="/feed/posts">
+    <button
+      *ngIf="authService.isLoggedIn"
+      mat-icon-button
+      matTooltip="Home"
+      routerLink="/feed/posts"
+    >
       <mat-icon aria-hidden="false" aria- label="Home">home</mat-icon>
     </button>
-    <button *ngIf="isLoggedIn" mat-icon- button matTooltip="Log In" routerLink="/users/login">
+    <button
+      *ngIf="!authService.isLoggedIn"
+      mat-icon-
+      button
+      matTooltip="Log In"
+      routerLink="/users/login"
+    >
       <mat-icon aria-hidden="false" aria-label="Login">login</mat-icon>
     </button>
-    <button *ngIf="isLoggedIn" mat-icon-button matTooltip="Log Out" (click)="logOut()">
+    <button
+      *ngIf="authService.isLoggedIn"
+      mat-icon-button
+      matTooltip="Log Out"
+      (click)="logOut()"
+    >
       <mat-icon aria-hidden="false" aria-label="Log out">logout</mat-icon>
     </button>
   </mat-toolbar-row>

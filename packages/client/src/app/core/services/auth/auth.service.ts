@@ -2,18 +2,6 @@ import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import {
-  User,
-  RegisterResponse,
-  LoginResponse,
-  AuthState,
-  UserResponse,
-  UsersResponse,
-  SearchUsersResponse,
-  ACCESS_TOKEN,
-  AUTH_USER,
-  MaybeNullOrUndefined
-} from 'src/app/shared';
 import { LoginGQL } from './graphql/login.service';
 import { RegisterGQL } from './graphql/register.service';
 import { ApolloQueryResult } from '@apollo/client/core';
@@ -21,48 +9,84 @@ import { authState, GET_AUTH_STATE } from 'src/app/reactive';
 import { createApollo } from 'src/app/graphql.module';
 import { HttpLink } from 'apollo-angular/http';
 import { GetUserGQL } from './graphql/getUser.service';
-
+import {
+  ACCESS_TOKEN,
+  AUTH_USER,
+  AuthState,
+  LoginResponse,
+  MaybeNullOrUndefined,
+  RegisterResponse,
+  User,
+  UserResponse,
+} from '../../../shared';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
+  searchUsers(
+    searchText: any,
+    arg1: number,
+    arg2: number
+  ): import('../../../shared').SearchUsersResponse {
+    throw new Error('Method not implemented.');
+  }
   constructor(
     private apollo: Apollo,
     private registerGQL: RegisterGQL,
     private loginGQL: LoginGQL,
     private getUserGQL: GetUserGQL,
-    private httpLink: HttpLink) {
-
+    private httpLink: HttpLink
+  ) {
     const localToken = this.getLocalToken();
     let isLoggedIn = false;
     if (localToken) {
       isLoggedIn = this.tokenExists() && !this.tokenExpired(localToken);
     }
-    if(!isLoggedIn){
+    if (!isLoggedIn) {
       localStorage.removeItem(ACCESS_TOKEN);
       localStorage.removeItem(AUTH_USER);
     }
     authState({
       isLoggedIn: isLoggedIn,
       currentUser: this.getLocalUser(),
-      accessToken: localToken
+      accessToken: localToken,
     });
   }
   get isLoggedIn(): Observable<boolean> {
-    return this.apollo.watchQuery<{ authState: AuthState }>({
-      query: GET_AUTH_STATE
-    }).valueChanges.pipe(map((qr: ApolloQueryResult<{ authState: AuthState }>) => qr.data.authState.isLoggedIn));
+    return this.apollo
+      .watchQuery<{ authState: AuthState }>({
+        query: GET_AUTH_STATE,
+      })
+      .valueChanges.pipe(
+        map(
+          (qr: ApolloQueryResult<{ authState: AuthState }>) =>
+            qr.data.authState.isLoggedIn
+        )
+      );
   }
   get authUser(): Observable<User | null> {
-    return this.apollo.watchQuery<{ authState: AuthState }>({
-      query: GET_AUTH_STATE
-    }).valueChanges.pipe(map((qr: ApolloQueryResult<{ authState: AuthState }>) => qr.data.authState.currentUser));
-  }    
+    return this.apollo
+      .watchQuery<{ authState: AuthState }>({
+        query: GET_AUTH_STATE,
+      })
+      .valueChanges.pipe(
+        map(
+          (qr: ApolloQueryResult<{ authState: AuthState }>) =>
+            qr.data.authState.currentUser
+        )
+      );
+  }
   get authState(): Observable<AuthState> {
-    return this.apollo.watchQuery<{ authState: AuthState }>({
-      query: GET_AUTH_STATE
-    }).valueChanges.pipe(map((qr: ApolloQueryResult<{ authState: AuthState }>) => qr.data.authState));
+    return this.apollo
+      .watchQuery<{ authState: AuthState }>({
+        query: GET_AUTH_STATE,
+      })
+      .valueChanges.pipe(
+        map(
+          (qr: ApolloQueryResult<{ authState: AuthState }>) => qr.data.authState
+        )
+      );
   }
   getLocalToken(): string | null {
     return localStorage.getItem(ACCESS_TOKEN);
@@ -81,7 +105,7 @@ export class AuthService {
   }
   private tokenExpired(token: string): boolean {
     const tokenObj = JSON.parse(atob(token.split('.')[1]));
-    return Date.now() > (tokenObj.exp * 1000);
+    return Date.now() > tokenObj.exp * 1000;
   }
   private updateAuthState(token: string, user: User) {
     this.storeToken(token);
@@ -89,68 +113,74 @@ export class AuthService {
     authState({
       isLoggedIn: true,
       currentUser: user,
-      accessToken: token
+      accessToken: token,
     });
   }
   private resetAuthState() {
     authState({
       isLoggedIn: false,
       currentUser: null,
-      accessToken: null
+      accessToken: null,
     });
   }
   register(
     fullName: string,
     username: string,
     email: string,
-    password: string): Observable<MaybeNullOrUndefined<RegisterResponse>> {
+    password: string
+  ): Observable<MaybeNullOrUndefined<RegisterResponse>> {
     return this.registerGQL
       .mutate({
         fullName: fullName,
         username: username,
         email: email,
-        password: password
+        password: password,
       })
       .pipe(
-        map(result => result.data),
+        map((result) => result.data),
         tap({
           next: (data: MaybeNullOrUndefined<RegisterResponse>) => {
             if (data?.register.token && data?.register.user) {
-
-              const token: string = data?.register.token, user: User = data?.register.user;
+              const token: string = data?.register.token,
+                user: User = data?.register.user;
               this.updateAuthState(token, user);
             }
-
-          }
-        }));
+          },
+        })
+      );
   }
   login(
     email: string,
-    password: string): Observable<MaybeNullOrUndefined<LoginResponse>> {
+    password: string
+  ): Observable<MaybeNullOrUndefined<LoginResponse>> {
     return this.loginGQL
       .mutate({
         email: email,
-        password: password
+        password: password,
       })
       .pipe(
-        map(result => result.data),
+        map((result) => result.data),
         tap({
           next: (data: MaybeNullOrUndefined<LoginResponse>) => {
             if (data?.signIn.token && data?.signIn.user) {
-              const token: string = data?.signIn.token, user = data?.signIn.user;
+              const token: string = data?.signIn.token,
+                user = data?.signIn.user;
               this.updateAuthState(token, user);
               const acOpts = createApollo(this.httpLink);
               this.apollo.client.setLink(acOpts.link!);
             }
-          }
-        }));
+          },
+        })
+      );
   }
   getUser(userId: string): Observable<UserResponse> {
-    return this.getUserGQL.watch({
-      userId: userId
-    }).valueChanges.pipe(map(result => result.data));
+    return this.getUserGQL
+      .watch({
+        userId: userId,
+      })
+      .valueChanges.pipe(map((result) => result.data));
   }
-  
+
   logOut(): void {
     localStorage.removeItem(ACCESS_TOKEN);
     localStorage.removeItem(AUTH_USER);

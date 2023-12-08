@@ -58,8 +58,11 @@ export type Mutation = {
   removeLike?: Maybe<Like>;
   removeNotification?: Maybe<Scalars['ID']['output']>;
   removePost?: Maybe<Scalars['ID']['output']>;
+  setUserBio?: Maybe<User>;
+  setUserCover?: Maybe<User>;
+  setUserPhoto?: Maybe<User>;
   signIn: AuthPayload;
-  uploadFile: File;
+  uploadFile?: Maybe<File>;
 };
 
 
@@ -105,6 +108,21 @@ export type MutationRemoveNotificationArgs = {
 
 export type MutationRemovePostArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationSetUserBioArgs = {
+  bio: Scalars['String']['input'];
+};
+
+
+export type MutationSetUserCoverArgs = {
+  file: Scalars['Upload']['input'];
+};
+
+
+export type MutationSetUserPhotoArgs = {
+  file: Scalars['Upload']['input'];
 };
 
 
@@ -355,8 +373,11 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   removeLike?: Resolver<Maybe<ResolversTypes['Like']>, ParentType, ContextType, RequireFields<MutationRemoveLikeArgs, 'postId'>>;
   removeNotification?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType, RequireFields<MutationRemoveNotificationArgs, 'id'>>;
   removePost?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType, RequireFields<MutationRemovePostArgs, 'id'>>;
+  setUserBio?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationSetUserBioArgs, 'bio'>>;
+  setUserCover?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationSetUserCoverArgs, 'file'>>;
+  setUserPhoto?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<MutationSetUserPhotoArgs, 'file'>>;
   signIn?: Resolver<ResolversTypes['AuthPayload'], ParentType, ContextType, RequireFields<MutationSignInArgs, 'email' | 'password'>>;
-  uploadFile?: Resolver<ResolversTypes['File'], ParentType, ContextType, RequireFields<MutationUploadFileArgs, 'file'>>;
+  uploadFile?: Resolver<Maybe<ResolversTypes['File']>, ParentType, ContextType, RequireFields<MutationUploadFileArgs, 'file'>>;
 };
 
 export type NotificationResolvers<ContextType = any, ParentType extends ResolversParentTypes['Notification'] = ResolversParentTypes['Notification']> = {

@@ -1,4 +1,8 @@
-export { User } from './models/user.model';
-export * from './types/user';
-export * from './types/auth';
-export * from './constants/auth';
+export * from './components/create-posts';
+export * from './components/dialog';
+export * from './components/posts';
+export * from './constants';
+export * from './models';
+export * from './services/post/post.service';
+export * from './shared.module';
+export * from './types';
