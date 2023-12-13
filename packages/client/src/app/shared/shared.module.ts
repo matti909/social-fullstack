@@ -16,6 +16,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatBadgeModule } from '@angular/material/badge';
 import { CreatePostComponent } from '../core/components/create-post/create-post.component';
+import { PostComponent } from './components/post/post.component';
 
 const matModules = [
   MatToolbarModule,
@@ -37,6 +38,7 @@ const matModules = [
     PostsComponent,
     DialogComponent,
     CreatePostComponent,
+    PostComponent,
   ],
   imports: [CommonModule, ReactiveFormsModule, matModules],
   exports: [ReactiveFormsModule, matModules, CreatePostComponent],

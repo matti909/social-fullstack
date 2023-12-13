@@ -1,5 +1,6 @@
 import { InMemoryCache } from '@apollo/client/core';
 import { authState } from './reactive';
+import { offsetLimitPagination } from '@apollo/client/utilities';
 
 export default new InMemoryCache({
   typePolicies: {
@@ -10,6 +11,7 @@ export default new InMemoryCache({
             return authState();
           },
         },
+        getPostsByUserId: offsetLimitPagination(['userId']),
       },
     },
     User: {
