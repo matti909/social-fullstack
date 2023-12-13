@@ -49,13 +49,33 @@ export class PostComponent {
 
   displayLikes(): void {}
 
-  displayComments(): void {}
+  displayComments(): void {
+    this.commentsShown = !this.commentsShown;
+    if (this.commentsShown) {
+      this.listComments.emit({
+        postId: this.post.id,
+      });
+    }
+  }
 
   loadComments(): void {}
 
   sendLike(): void {}
 
-  removePost(): void {}
-  
-  createComment(e: Event): void {}
+  removePost(): void {
+    this.remove.emit({
+      id: this.post.id,
+    });
+  }
+
+  createComment(e: Event): void {
+    e.preventDefault();
+    this.comment.emit({
+      comment: this.commentInput.nativeElement.value,
+      postId: this.post.id,
+    });
+    if (this.commentInput) {
+      this.commentInput.nativeElement.value = '';
+    }
+  }
 }

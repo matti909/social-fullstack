@@ -49,9 +49,12 @@ export class PostService {
 
   removePost(id: string) {
     return this.removePostGQL
-      .mutate({
-        id: id,
-      })
+      .mutate(
+        {
+          id: id,
+        },
+        { refetchQueries: ['getUser'] }
+      )
       .pipe(map((result) => result.data!.removePost));
   }
 
@@ -70,6 +73,4 @@ export class PostService {
     });
     return queryRef;
   }
-
-  
 }

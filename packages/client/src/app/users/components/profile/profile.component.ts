@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { User } from '@ngsocial/graphql/types';
+import { User, Post } from '@ngsocial/graphql/types';
 import { User as UserModel } from 'src/app/shared';
 import { Maybe } from 'graphql/jsutils/Maybe';
 import { Subject } from 'rxjs';
@@ -20,6 +20,7 @@ export class ProfileComponent extends BaseComponent {
   profileUser: Partial<User> | null = null;
   showEditSection: boolean = false;
   isAuthUserProfile: boolean = false;
+  fetchMore!: () => void;
 
   route = inject(ActivatedRoute);
   profileService = inject(ProfileService);
@@ -47,15 +48,34 @@ export class ProfileComponent extends BaseComponent {
         const userId = params.get('userId')!;
         return this.authService.getUser(userId);
       }),
-      takeUntil(this.destroyNotifier)
-    );
-    userObs.subscribe({
-      next: (userResponse) => {
+      switchMap((userResponse) => {
         this.setProfileUser(userResponse.getUser);
         this.setIsAuthUserProfile();
-      },
-      error: (err) => super.handleErrors(err),
-    });
+        const qRef = this.postService.getPostsByUserId(userResponse.getUser.id);
+        this.fetchMore = () => {
+          qRef.fetchMore({
+            variables: {
+              offset: this.posts.length,
+            },
+          });
+        };
+        return qRef.valueChanges; 
+      }),
+      takeUntil(this.destroyNotifier)
+    );
+    userObs
+      .pipe((getPostsObs) => {
+        this.loading = true;
+        return getPostsObs;
+      })
+      .subscribe({
+        next: (result) => {
+          this.loading = result.loading;
+          this.posts = result.data.getPostsByUserId as Post[];
+          console.log(this.posts);
+        },
+        error: (err) => super.handleErrors(err),
+      });
   }
 
   private setProfileUser(user: Partial<User>) {

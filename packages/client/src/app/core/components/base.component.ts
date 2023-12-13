@@ -1,25 +1,29 @@
-import { Injector, Component, OnDestroy, OnInit, inject } from '@angular/core';
-
-import { Subject } from 'rxjs';
-import { mergeMap, takeUntil } from 'rxjs/operators';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-
+import { Post, User } from '@ngsocial/graphql/types';
+import { Subject } from 'rxjs';
+import { mergeMap, take, takeUntil } from 'rxjs/operators';
+import {
+  PostEvent,
+  RemovePostEvent,
+  CommentEvent,
+  LikeEvent,
+} from 'src/app/shared';
 import { AuthService, PostService } from '../services';
-
-import { User, Post } from '@ngsocial/graphql/types';
-
-import { PostEvent, RemovePostEvent } from 'src/app/shared';
+import { CommentsService } from '../services/comment/comments.service';
+import { LikesService } from '../services/like/likes.service';
 
 @Component({
   template: '',
 })
 export abstract class BaseComponent implements OnInit, OnDestroy {
-  
   private componentDestroyed = new Subject();
   public authUser: Partial<User> | null = null;
   public loading: boolean = false;
   public posts: Post[] = [];
 
+  likesService = inject(LikesService);
+  commentsService = inject(CommentsService);
   snackBar = inject(MatSnackBar);
   authService = inject(AuthService);
   postService = inject(PostService);
@@ -120,5 +124,32 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
         },
         error: (err) => this.handleErrors(err),
       });
+  }
+
+  onComment(e: CommentEvent): void {
+    this.commentsService
+      .createComment(e.comment, e.postId)
+      .pipe(take(1))
+      .subscribe({
+        error: (err) => this.handleErrors(err),
+      });
+  }
+
+  onLike(e: LikeEvent): void {
+    if (e.post.likedByAuthUser) {
+      this.likesService
+        .removeLike(e.post.id)
+        .pipe(take(1))
+        .subscribe({
+          error: (err) => this.handleErrors(err),
+        });
+    } else {
+      this.likesService
+        .likePost(e.post.id)
+        .pipe(take(1))
+        .subscribe({
+          error: (err) => this.handleErrors(err),
+        });
+    }
   }
 }

@@ -102,6 +102,29 @@
       *ngIf="isAuthUserProfile && authUser"
     >
     </app-create-post>
+
+    <div *ngFor="let post of posts">
+      <app-post
+        [post]="post"
+        [authUser]="authUser"
+        (comment)="onComment($event)"
+        (like)="onLike($event)"
+        (remove)="onRemovePost($event)"
+      >
+      </app-post>
+    </div>
+    <button
+      *ngIf="
+        authUser &&
+        profileUser.postsCount &&
+        profileUser.postsCount > posts.length
+      "
+      mat-raised-button
+      color="primary"
+      (click)="fetchMore()"
+    >
+      More
+    </button>
   </div>
 </div>
 

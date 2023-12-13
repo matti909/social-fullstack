@@ -41,6 +41,6 @@ const matModules = [
     PostComponent,
   ],
   imports: [CommonModule, ReactiveFormsModule, matModules],
-  exports: [ReactiveFormsModule, matModules, CreatePostComponent],
+  exports: [ReactiveFormsModule, matModules, CreatePostComponent, PostComponent],
 })
 export class SharedModule {}
