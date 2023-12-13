@@ -15,7 +15,10 @@ fragment CommentsInfo on Post {
   latestComment {
     ...CommentFields
     author {
-      ...BasicUserFields
+      id
+      fullName
+      username
+      image
     }
   }
   commentsCount
@@ -51,4 +54,16 @@ mutation createPost($text: String, $image: String) {
 
 mutation removePost($id: ID!) {
   removePost(id: $id)
+}
+
+query getPostsByUserId($userId: ID!, $offset: Int, $limit: Int) {
+  getPostsByUserId(userId: $userId, offset: $offset, limit: $limit) {
+    ...PostFields
+  }
+}
+
+query getFeed($offset: Int, $limit: Int) {
+  getFeed(offset: $offset, limit: $limit) {
+    ...PostFields
+  }
 }
