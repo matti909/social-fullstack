@@ -1,12 +1,16 @@
 import { Injectable } from '@angular/core';
 import { Apollo } from 'apollo-angular';
-import { Observable } from 'rxjs';
+import { Observable, from } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { LoginGQL } from './graphql/login.service';
 import { RegisterGQL } from './graphql/register.service';
-import { ApolloQueryResult } from '@apollo/client/core';
+import {
+  ApolloClientOptions,
+  ApolloQueryResult,
+  InMemoryCache,
+} from '@apollo/client/core';
 import { authState, GET_AUTH_STATE } from 'src/app/reactive';
-import { createApollo } from 'src/app/graphql.module';
+import {} from 'src/app/graphql.module';
 import { HttpLink } from 'apollo-angular/http';
 import { GetUserGQL } from './graphql/getUser.service';
 import {
@@ -43,10 +47,10 @@ export class AuthService {
     if (localToken) {
       isLoggedIn = this.tokenExists() && !this.tokenExpired(localToken);
     }
-    if(!isLoggedIn){
+    if (!isLoggedIn) {
       localStorage.removeItem(ACCESS_TOKEN);
       localStorage.removeItem(AUTH_USER);
-      }
+    }
     if (!isLoggedIn) {
       localStorage.removeItem(ACCESS_TOKEN);
       localStorage.removeItem(AUTH_USER);
@@ -170,13 +174,14 @@ export class AuthService {
               const token: string = data?.signIn.token,
                 user = data?.signIn.user;
               this.updateAuthState(token, user);
-              const acOpts = createApollo(this.httpLink);
-              this.apollo.client.setLink(acOpts.link!);
+              
             }
           },
         })
       );
   }
+
+
   getUser(userId: string): Observable<UserResponse> {
     return this.getUserGQL
       .watch({

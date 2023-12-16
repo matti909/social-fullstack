@@ -30,6 +30,10 @@
       "@ngsocial/graphql/documents": ["../graphql-types/src/client/graphql-operations"]
     }
   },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.d.ts",
+  ],
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,

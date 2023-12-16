@@ -12,6 +12,7 @@ import {
 import { AuthService, PostService } from '../services';
 import { CommentsService } from '../services/comment/comments.service';
 import { LikesService } from '../services/like/likes.service';
+  
 
 @Component({
   template: '',
@@ -86,6 +87,7 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 
   private uploadImageAndCreatePost(image: File, text: string | null) {
     this.loading = true;
+
     this.postService
       .uploadFile(image)
       .pipe(
