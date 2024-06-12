@@ -4,5 +4,6 @@ package-lock*.json
 
 .vscode/
 
-.DS_Store
-.env
+.DS_Stores
+
+*packages/server/.env

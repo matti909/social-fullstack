@@ -13,16 +13,25 @@ import jsonwebtoken from "jsonwebtoken";
 import { DeleteResult, QueryFailedError } from "typeorm";
 import { Context } from "..";
 import { Post as PostEntity } from "../entity";
+import { Comment as CommentEntity } from '../entity'
 import { GraphQLUpload } from "graphql-upload-ts";
+import AWS from "aws-sdk";
 
 dotenv.config();
-import AWS from "aws-sdk";
-const spacesEndpoint = new AWS.Endpoint(process.env.S3_ENDPOINT as string);
+/* const spacesEndpoint = new AWS.Endpoint(process.env.S3_ENDPOINT as string);
 const s3 = new AWS.S3({
   endpoint: spacesEndpoint,
   accessKeyId: process.env.S3_ACCESS_KEY_ID,
   secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+}); */
+
+AWS.config.update({
+  accessKeyId: process.env.S3_ACCESS_KEY_ID,
+  secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
+  region: process.env.REGION_AWS_BUCKET,
 });
+
+const s3 = new AWS.S3();
 
 const hashPassword = async (plainPassword: string): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -158,16 +167,121 @@ const resolvers: Resolvers = {
       );
       return savedPost as unknown as Post;
     },
+    comment: async (_, args, { orm, authUser }: Context) => {
+      const postId = parseInt(args.postId, 10);
+      if (!authUser) {
+        throw new ApolloError("User not authenticated", "UNAUTHENTICATED");
+      }
 
-    comment: (_, args, ctx: Context) => {
-      throw new ApolloError("Not implemented yet", "NOT_IMPLEMENTED_YET");
+      const post = await orm.postRepository.findOne({
+        where: { id: postId },
+      });
+
+      if (!post) {
+        throw new ApolloError("Post not found", "POST_NOT_FOUND");
+      }
+
+      const comment = orm.commentRepository.create({
+        comment: args.comment,
+        post: post,
+        author: await orm.userRepository.findOne({
+          where: { id: authUser.id },
+        }),
+      });
+
+      const savedComment = await orm.commentRepository.save(comment);
+
+      await orm.postRepository.update(post.id, {
+        commentsCount: post.commentsCount + 1,
+        latestComment: savedComment,
+      });
+
+      savedComment.post = await orm.postRepository.findOne({
+        where: { id: post.id },
+        relations: ["author", "comments", "likes"],
+      });
+
+      return savedComment as unknown as Comment;
     },
-    like: (_, args, ctx: Context) => {
-      throw new ApolloError("Not implemented yet", "NOT_IMPLEMENTED_YET");
+
+    like: async (_, args, { orm, authUser }: Context) => {
+      const postId = parseInt(args.postId, 10);
+      if (!authUser) {
+        throw new ApolloError("User not authenticated", "UNAUTHENTICATED");
+      }
+    
+      const user = await orm.userRepository.findOne({
+        where: { id: authUser.id },
+      });
+    
+      if (!user) {
+        throw new ApolloError("User not found", "USER_NOT_FOUND");
+      }
+    
+      const post = await orm.postRepository.findOne({
+        where: { id: postId },
+      });
+    
+      if (!post) {
+        throw new ApolloError("Post not found", "POST_NOT_FOUND");
+      }
+    
+      const like = orm.likeRepository.create({
+        user: user,
+        post: post,
+      });
+    
+      const savedLike = await orm.likeRepository.save(like);
+    
+      await orm.postRepository.update(post.id, {
+        likesCount: post.likesCount + 1,
+      });
+    
+      savedLike.post = await orm.postRepository.findOne({
+        where: { id: post.id },
+        relations: ["author", "comments", "likes"],
+      });
+    
+      return savedLike as unknown as Like;
     },
-    removeLike: async (_, args, ctx: Context) => {
-      throw new ApolloError("Not implemented yet", "NOT_IMPLEMENTED_YET");
+    
+    removeLike: async (_, args, { orm, authUser }: Context) => {
+      if (!authUser) {
+        throw new ApolloError("User not authenticated", "UNAUTHENTICATED");
+      }
+    
+      const postId = parseInt(args.postId, 10);
+      if (isNaN(postId)) {
+        throw new ApolloError("Invalid postId", "INVALID_POST_ID");
+      }
+    
+      const like = await orm.likeRepository.findOne({
+        where: {
+          post: { id: postId },
+          user: { id: authUser.id }
+        },
+        relations: ["user", "post"]
+      });
+    
+      if (!like) {
+        throw new ApolloError("Like not found", "LIKE_NOT_FOUND");
+      }
+    
+      const result: DeleteResult = await orm.likeRepository.delete(like.id);
+    
+      if (result.affected === 0) {
+        throw new ApolloError("Like not deleted", "LIKE_NOT_DELETED");
+      }
+    
+      if (like.post.likesCount >= 1) {
+        await orm.postRepository.update(like.post.id, {
+          likesCount: like.post.likesCount - 1
+        });
+      }
+    
+      return like as unknown as Like;
     },
+    
     removePost: async (_, { id }, { orm }: Context) => {
       const postId = parseInt(id, 10);
       const post = await orm.postRepository.findOne({
@@ -195,7 +309,6 @@ const resolvers: Resolvers = {
       }
       return id;
     },
-
     removeComment: async (_, { id }, { orm }: Context) => {
       const postId = parseInt(id, 10);
       const comment = await orm.commentRepository.findOne({
@@ -217,7 +330,6 @@ const resolvers: Resolvers = {
       }
       return comment as unknown as Comment;
     },
-
     removeNotification: async (_, { id }, { orm }: Context) => {
       const postId = parseInt(id, 10);
       const notificationRepository = orm.notificationRepository;

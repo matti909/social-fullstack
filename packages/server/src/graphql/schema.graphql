@@ -86,7 +86,7 @@ type Mutation {
     password: String!
   ): AuthPayload!
   signIn(email: String!, password: String!): AuthPayload!
-  uploadFile(file: Upload!): File @auth
+  uploadFile(file: Upload!): File
   setUserPhoto(file: Upload!): User @auth
   setUserCover(file: Upload!): User @auth
   setUserBio(bio: String!): User @auth
