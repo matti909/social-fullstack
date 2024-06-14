@@ -69,11 +69,16 @@ const resolvers: Resolvers = {
     getUser: async (_, args, ctx: Context) => {
       const postId = parseInt(args.userId, 10);
       const orm = ctx.orm;
+      const auth = ctx.authUser;
+      console.log(auth);
       const user = await orm.userRepository.findOne({
         where: { id: postId },
       });
       if (!user) {
         throw new ApolloError("No user found", "USER_NOT_FOUND");
+      }
+      if (!auth) {
+        throw new ApolloError("Not authenticated")
       }
       return user as unknown as User;
     },
@@ -152,17 +157,24 @@ const resolvers: Resolvers = {
     },
   },
   Mutation: {
-    post: async (_, args, { orm, authUser }: Context) => {
+    post: async (_, args, ctx: Context) => {
+      const { orm } = ctx;
+      const user = ctx.authUser;
+      console.log("User: ", user);
+      if (!user) {
+        throw new Error('Usuario no autenticado');
+      }
+
       const post = orm.postRepository.create({
         text: args.text,
         image: args.image,
-        user: authUser,
+        user: user,
       } as unknown as PostEntity);
 
       const savedPost = await orm.postRepository.save(post);
 
       await orm.userRepository.update(
-        { id: authUser?.id },
+        { id: user?.id },
         { postsCount: post.author.postsCount + 1 }
       );
       return savedPost as unknown as Post;
@@ -209,52 +221,52 @@ const resolvers: Resolvers = {
       if (!authUser) {
         throw new ApolloError("User not authenticated", "UNAUTHENTICATED");
       }
-    
+
       const user = await orm.userRepository.findOne({
         where: { id: authUser.id },
       });
-    
+
       if (!user) {
         throw new ApolloError("User not found", "USER_NOT_FOUND");
       }
-    
+
       const post = await orm.postRepository.findOne({
         where: { id: postId },
       });
-    
+
       if (!post) {
         throw new ApolloError("Post not found", "POST_NOT_FOUND");
       }
-    
+
       const like = orm.likeRepository.create({
         user: user,
         post: post,
       });
-    
+
       const savedLike = await orm.likeRepository.save(like);
-    
+
       await orm.postRepository.update(post.id, {
         likesCount: post.likesCount + 1,
       });
-    
+
       savedLike.post = await orm.postRepository.findOne({
         where: { id: post.id },
         relations: ["author", "comments", "likes"],
       });
-    
+
       return savedLike as unknown as Like;
     },
-    
+
     removeLike: async (_, args, { orm, authUser }: Context) => {
       if (!authUser) {
         throw new ApolloError("User not authenticated", "UNAUTHENTICATED");
       }
-    
+
       const postId = parseInt(args.postId, 10);
       if (isNaN(postId)) {
         throw new ApolloError("Invalid postId", "INVALID_POST_ID");
       }
-    
+
       const like = await orm.likeRepository.findOne({
         where: {
           post: { id: postId },
@@ -262,26 +274,26 @@ const resolvers: Resolvers = {
         },
         relations: ["user", "post"]
       });
-    
+
       if (!like) {
         throw new ApolloError("Like not found", "LIKE_NOT_FOUND");
       }
-    
+
       const result: DeleteResult = await orm.likeRepository.delete(like.id);
-    
+
       if (result.affected === 0) {
         throw new ApolloError("Like not deleted", "LIKE_NOT_DELETED");
       }
-    
+
       if (like.post.likesCount >= 1) {
         await orm.postRepository.update(like.post.id, {
           likesCount: like.post.likesCount - 1
         });
       }
-    
+
       return like as unknown as Like;
     },
-    
+
     removePost: async (_, { id }, { orm }: Context) => {
       const postId = parseInt(id, 10);
       const post = await orm.postRepository.findOne({

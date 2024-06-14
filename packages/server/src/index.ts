@@ -1,17 +1,17 @@
-import "reflect-metadata";
-import express, { Application } from "express";
 import { ApolloServer } from "apollo-server-express";
-import dotenv from "dotenv";
-import jwt from "jsonwebtoken";
-import path from "path";
-import morgan from 'morgan'
 import bodyParser from "body-parser";
-import cookieParser from 'cookie-parser'
+import cookieParser from 'cookie-parser';
+import dotenv from "dotenv";
+import express, { Application } from "express";
+import { graphqlUploadExpress } from "graphql-upload-ts";
+import jwt from "jsonwebtoken";
+import morgan from 'morgan';
+import path from "path";
+import "reflect-metadata";
 import { Repository } from "typeorm";
 import { AppDS } from "./config/ormconfig";
 import { Comment, Like, Notification, Post, User } from "./entity";
 import schema from "./graphql/schema";
-import { graphqlUploadExpress } from "graphql-upload-ts"
 
 dotenv.config({ path: path.join(__dirname, "..", ".env") });
 const { JWT_SECRET } = process.env;
@@ -19,9 +19,8 @@ const { JWT_SECRET } = process.env;
 const getAuthUser = (token: string) => {
   try {
     if (token) {
-      return jwt.verify(token, JWT_SECRET as string) as User;
+      return jwt.verify(token, JWT_SECRET) as any;
     }
-    return null;
   } catch (error) {
     return null;
   }
@@ -59,7 +58,6 @@ async function startApolloServer() {
       res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, DELETE");
       next();
     });
-    app.use(morgan('dev'))
     app.use(graphqlUploadExpress({ maxFileSize: 10000000, maxFiles: 10 }))
 
     const userRepository: Repository<User> = AppDS.getRepository(User);
@@ -72,8 +70,9 @@ async function startApolloServer() {
     const server: ApolloServer = new ApolloServer({
       schema,
       context: ({ req }) => {
-        const token = req.get("Authorization") || "";
-        const authUser = getAuthUser(token.split(" ")[1]);
+        const token = req.get('Authorization') || '';
+        const authUser = getAuthUser(token.split(' ')[1]);
+        console.log(authUser);
         const ctx: Context = {
           orm: {
             userRepository: userRepository,
@@ -110,3 +109,4 @@ async function startApolloServer() {
 }
 
 startApolloServer();
+

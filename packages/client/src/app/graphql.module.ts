@@ -5,11 +5,12 @@ import cache from './cache';
 import extractFiles from 'extract-files/extractFiles.mjs';
 import isExtractableFile from 'extract-files/isExtractableFile.mjs';
 import { HttpHeaders } from '@angular/common/http';
+import { setContext } from '@apollo/client/link/context';
 
 const accessToken = localStorage.getItem('accessToken');
 const setAuthorizationLink = setContext(() => ({
   headers: new HttpHeaders().set(
-    'Authorization', `Bearer ${accessToken}`
+    'Authorization', `JWT ${accessToken}`
   )
 }));
 
@@ -33,7 +34,4 @@ const setAuthorizationLink = setContext(() => ({
   ],
 })
 export class GraphQLModule {}
-function setContext(arg0: () => { headers: any; }) {
-  throw new Error('Function not implemented.');
-}
 

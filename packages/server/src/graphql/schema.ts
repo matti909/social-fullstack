@@ -4,7 +4,7 @@ import { MapperKind, getDirective, mapSchema } from "@graphql-tools/utils";
 import { ApolloError, gql } from "apollo-server-express";
 import { GraphQLSchema, defaultFieldResolver } from "graphql";
 import resolvers from "./resolvers";
-
+/* 
 function authDirective() {
   return {
     authDirectiveTypeDefs: gql`
@@ -35,17 +35,16 @@ function authDirective() {
         },
       }),
   };
-}
+} 
 const { authDirectiveTypeDefs, authDirectiveTransformer } = authDirective();
-
+*/
 const typeDefs = gql`
   ${fs.readFileSync(__dirname.concat("/schema.graphql"), "utf8")}
 `;
 
 let schema: GraphQLSchema = makeExecutableSchema({
-  typeDefs: [authDirectiveTypeDefs, typeDefs],
+  typeDefs: [typeDefs],
   resolvers: resolvers,
 });
 
-schema = authDirectiveTransformer(schema);
 export default schema;

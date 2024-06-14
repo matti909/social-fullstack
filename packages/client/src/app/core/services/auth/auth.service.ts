@@ -10,7 +10,7 @@ import {
   InMemoryCache,
 } from '@apollo/client/core';
 import { authState, GET_AUTH_STATE } from 'src/app/reactive';
-import {} from 'src/app/graphql.module';
+import { } from 'src/app/graphql.module';
 import { HttpLink } from 'apollo-angular/http';
 import { GetUserGQL } from './graphql/getUser.service';
 import {
@@ -46,10 +46,6 @@ export class AuthService {
     let isLoggedIn = false;
     if (localToken) {
       isLoggedIn = this.tokenExists() && !this.tokenExpired(localToken);
-    }
-    if (!isLoggedIn) {
-      localStorage.removeItem(ACCESS_TOKEN);
-      localStorage.removeItem(AUTH_USER);
     }
     if (!isLoggedIn) {
       localStorage.removeItem(ACCESS_TOKEN);
@@ -174,7 +170,7 @@ export class AuthService {
               const token: string = data?.signIn.token,
                 user = data?.signIn.user;
               this.updateAuthState(token, user);
-              
+
             }
           },
         })

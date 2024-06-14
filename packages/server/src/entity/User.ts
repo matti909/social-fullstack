@@ -22,10 +22,10 @@ export class User {
   @Column({ nullable: true }) coverImage: string;
   @Column({ default: 0 }) postsCount: number;
   @CreateDateColumn() createdAt: Date;
-  @OneToMany((type) => Post, (post) => post.author) posts: Post[];
-  @OneToMany((type) => Comment, (comment) => comment.author)
+  @OneToMany((type) => Post, post => post.author) posts: Post[];
+  @OneToMany((type) => Comment, comment => comment.author)
   comments: Comment[];
-  @OneToMany((type) => Like, (like) => like.user) likes: Like[];
-  @OneToMany((type) => Notification, (notification) => notification.user)
+  @OneToMany((type) => Like, like => like.user) likes: Like[];
+  @OneToMany((type) => Notification, notification => notification.user)
   notifications: Notification[];
 }
