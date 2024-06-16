@@ -58,7 +58,22 @@ mutation removePost($id: ID!) {
 
 query getPostsByUserId($userId: ID!, $offset: Int, $limit: Int) {
   getPostsByUserId(userId: $userId, offset: $offset, limit: $limit) {
-    ...PostFields
+    text
+    image
+    author {
+      email
+      fullName
+      username
+      image
+    }
+    latestComment {
+      comment
+      createdAt
+      id
+    }
+    commentsCount
+    likedByAuthUser
+    likesCount
   }
 }
 

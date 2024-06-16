@@ -21,7 +21,7 @@ export class PostService {
     private removePostGQL: RemovePostGQL,
     private uploadFileGQL: UploadFileGQL,
     private apollo: Apollo
-  ) {}
+  ) { }
 
   uploadFile(image: File) {
     return this.uploadFileGQL
@@ -58,19 +58,21 @@ export class PostService {
       .pipe(map((result) => result.data!.removePost));
   }
 
-  getPostsByUserId(userId: string, offset?: number, limit?: number) {
-    const queryRef = this.apollo.watchQuery<
-      GetPostsByUserIdQuery,
-      GetPostsByUserIdQueryVariables
-    >({
-      query: GetPostsByUserIdDocument,
-      variables: {
-        userId: userId,
-        offset: offset || 0,
-        limit: limit || 10,
-      },
-      fetchPolicy: 'cache-and-network',
-    });
+  getPostsByUserId(
+    userId: string,
+    offset?: number,
+    limit?: number) {
+
+    const queryRef = this.apollo
+      .watchQuery<
+        GetPostsByUserIdQuery,
+        GetPostsByUserIdQueryVariables>({
+          query: GetPostsByUserIdDocument,
+          variables: {
+            userId: userId
+          },
+          fetchPolicy: 'cache-and-network',
+        });
     return queryRef;
   }
 }

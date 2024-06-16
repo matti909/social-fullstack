@@ -5,7 +5,6 @@ import dotenv from "dotenv";
 import express, { Application } from "express";
 import { graphqlUploadExpress } from "graphql-upload-ts";
 import jwt from "jsonwebtoken";
-import morgan from 'morgan';
 import path from "path";
 import "reflect-metadata";
 import { Repository } from "typeorm";
@@ -72,7 +71,6 @@ async function startApolloServer() {
       context: ({ req }) => {
         const token = req.get('Authorization') || '';
         const authUser = getAuthUser(token.split(' ')[1]);
-        console.log(authUser);
         const ctx: Context = {
           orm: {
             userRepository: userRepository,

@@ -13,7 +13,8 @@ import { Like } from "./Like";
 import { Comment } from "./Comment";
 
 @Entity()
-export class Post {
+export class 
+Post {
   @PrimaryGeneratedColumn() id: number;
   @Column("longtext") text: string;
   @Column({ nullable: true }) image: string;

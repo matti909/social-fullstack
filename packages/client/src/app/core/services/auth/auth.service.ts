@@ -1,18 +1,12 @@
 import { Injectable } from '@angular/core';
-import { Apollo } from 'apollo-angular';
-import { Observable, from } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
-import { LoginGQL } from './graphql/login.service';
-import { RegisterGQL } from './graphql/register.service';
 import {
-  ApolloClientOptions,
-  ApolloQueryResult,
-  InMemoryCache,
+  ApolloQueryResult
 } from '@apollo/client/core';
-import { authState, GET_AUTH_STATE } from 'src/app/reactive';
-import { } from 'src/app/graphql.module';
+import { Apollo } from 'apollo-angular';
 import { HttpLink } from 'apollo-angular/http';
-import { GetUserGQL } from './graphql/getUser.service';
+import { Observable } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
+import { GET_AUTH_STATE, authState } from 'src/app/reactive';
 import {
   ACCESS_TOKEN,
   AUTH_USER,
@@ -20,21 +14,21 @@ import {
   LoginResponse,
   MaybeNullOrUndefined,
   RegisterResponse,
+  SEARCH_USERS_QUERY,
+  SearchUsersResponse,
   User,
   UserResponse,
+  UsersResponse,
 } from '../../../shared';
+import { GetUserGQL } from './graphql/getUser.service';
+import { LoginGQL } from './graphql/login.service';
+import { RegisterGQL } from './graphql/register.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  searchUsers(
-    searchText: any,
-    arg1: number,
-    arg2: number
-  ): import('../../../shared').SearchUsersResponse {
-    throw new Error('Method not implemented.');
-  }
+
   constructor(
     private apollo: Apollo,
     private registerGQL: RegisterGQL,
@@ -177,7 +171,6 @@ export class AuthService {
       );
   }
 
-
   getUser(userId: string): Observable<UserResponse> {
     return this.getUserGQL
       .watch({
@@ -186,9 +179,32 @@ export class AuthService {
       .valueChanges.pipe(map((result) => result.data));
   }
 
+  searchUsers(searchQuery: string, offset: number, limit: number): SearchUsersResponse {
+    const feedQuery = this.apollo.watchQuery<UsersResponse>({
+      query: SEARCH_USERS_QUERY,
+      variables: {
+        searchQuery: searchQuery,
+        offset: offset,
+        limit: limit
+      },
+      fetchPolicy: 'cache-first',
+    });
+
+    const fetchMore: (users: User[]) => void = (users: User[]) => {
+      feedQuery.fetchMore({
+        variables: {
+          offset: users.length,
+        }
+      });
+    }
+
+    return { data: feedQuery.valueChanges.pipe(map(result => result.data)), fetchMore: fetchMore };
+  }
+
   logOut(): void {
     localStorage.removeItem(ACCESS_TOKEN);
     localStorage.removeItem(AUTH_USER);
     this.resetAuthState();
   }
 }
+

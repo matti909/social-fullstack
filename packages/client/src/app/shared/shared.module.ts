@@ -30,6 +30,11 @@ const matModules = [
   MatDialogModule,
   MatProgressBarModule,
   MatBadgeModule,
+  MatToolbarModule,
+  MatIconModule,
+  MatDialogModule,
+  MatSnackBarModule,
+  MatCardModule,
 ];
 
 @NgModule({

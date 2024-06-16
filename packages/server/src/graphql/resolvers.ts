@@ -7,15 +7,14 @@ import {
   User,
 } from "@ngsocial/graphql";
 import { ApolloError } from "apollo-server-errors";
+import AWS from "aws-sdk";
 import crypto from "crypto";
 import dotenv from "dotenv";
+import { GraphQLUpload } from "graphql-upload-ts";
 import jsonwebtoken from "jsonwebtoken";
 import { DeleteResult, QueryFailedError } from "typeorm";
 import { Context } from "..";
-import { Post as PostEntity } from "../entity";
-import { Comment as CommentEntity } from '../entity'
-import { GraphQLUpload } from "graphql-upload-ts";
-import AWS from "aws-sdk";
+import { Like as LikeEntity, Post as PostEntity } from "../entity";
 
 dotenv.config();
 /* const spacesEndpoint = new AWS.Endpoint(process.env.S3_ENDPOINT as string);
@@ -70,7 +69,7 @@ const resolvers: Resolvers = {
       const postId = parseInt(args.userId, 10);
       const orm = ctx.orm;
       const auth = ctx.authUser;
-      console.log(auth);
+
       const user = await orm.userRepository.findOne({
         where: { id: postId },
       });
@@ -96,6 +95,11 @@ const resolvers: Resolvers = {
         .skip(args.offset as number)
         .take(args.limit as number)
         .getMany();
+      posts.forEach((post: PostEntity) => {
+        if (post.likes?.find((like: LikeEntity) => { return like.user.id == ctx.authUser?.id })) {
+          post.likedByAuthUser = true;
+        }
+      });
       return posts as unknown as Post[];
     },
 
@@ -157,26 +161,22 @@ const resolvers: Resolvers = {
     },
   },
   Mutation: {
-    post: async (_, args, ctx: Context) => {
-      const { orm } = ctx;
-      const user = ctx.authUser;
-      console.log("User: ", user);
-      if (!user) {
-        throw new Error('Usuario no autenticado');
+    post: async (_, args, {authUser, orm}: Context) => {
+
+
+      if (!authUser) {
+        throw new ApolloError("Not authenticated")
       }
 
-      const post = orm.postRepository.create({
-        text: args.text,
-        image: args.image,
-        user: user,
-      } as unknown as PostEntity);
-
-      const savedPost = await orm.postRepository.save(post);
-
-      await orm.userRepository.update(
-        { id: user?.id },
-        { postsCount: post.author.postsCount + 1 }
+      const post = orm.postRepository.create(
+        {
+          text: args.text,
+          image: args.image,
+          author: await orm.userRepository.findOneBy({ id: authUser.id })
+        } as unknown as PostEntity
       );
+      await orm.userRepository.update({ id: authUser?.id }, { postsCount: post.author.postsCount + 1 });
+      const savedPost = await orm.postRepository.save(post);
       return savedPost as unknown as Post;
     },
     comment: async (_, args, { orm, authUser }: Context) => {

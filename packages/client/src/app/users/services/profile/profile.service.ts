@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { SetUserCoverGQL, SetUserPhotoGQL, SetUserBioGQL } from 'src/app/core';
 import { map } from 'rxjs/operators';
+import { SetUserBioGQL, SetUserCoverGQL, SetUserPhotoGQL } from 'src/app/core';
 
 @Injectable({
   providedIn: 'root',
