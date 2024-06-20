@@ -6,9 +6,8 @@ import { HttpLink } from 'apollo-angular/http';
 import cache from './cache';
 import { HttpClientModule } from '@angular/common/http';
 
-
-export function createApollo(): ApolloClientOptions<any> {
-  const httpLink = createHttpLink({
+export function createApollo(httpLink: HttpLink): ApolloClientOptions<any> {
+  const http = createHttpLink({
     uri: 'http://localhost:4000/graphql',
   });
 
@@ -17,13 +16,13 @@ export function createApollo(): ApolloClientOptions<any> {
     return {
       headers: {
         ...headers,
-        authorization: token ? `JWT ${token}` : "",
-      }
-    }
+        authorization: token ? `JWT ${token}` : '',
+      },
+    };
   });
   return {
-    link: authLink.concat(httpLink),
-    cache: cache
+    link: authLink.concat(http),
+    cache: cache,
   };
 }
 
@@ -37,4 +36,4 @@ export function createApollo(): ApolloClientOptions<any> {
     },
   ],
 })
-export class GraphQLModule { }
+export class GraphQLModule {}
