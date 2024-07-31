@@ -15,10 +15,7 @@ fragment CommentsInfo on Post {
   latestComment {
     ...CommentFields
     author {
-      id
-      fullName
-      username
-      image
+      ...BasicUserFields
     }
   }
   commentsCount

@@ -27,7 +27,7 @@ const s3 = new AWS.S3({
 AWS.config.update({
   accessKeyId: process.env.S3_ACCESS_KEY_ID,
   secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-  region: process.env.REGION_AWS_BUCKET,
+  region: process.env.S3_REGION,
 });
 
 const s3 = new AWS.S3();
@@ -77,7 +77,7 @@ const resolvers: Resolvers = {
         throw new ApolloError("No user found", "USER_NOT_FOUND");
       }
       if (!auth) {
-        throw new ApolloError("Not authenticated")
+        throw new ApolloError("Not authenticated");
       }
       return user as unknown as User;
     },
@@ -96,7 +96,11 @@ const resolvers: Resolvers = {
         .take(args.limit as number)
         .getMany();
       posts.forEach((post: PostEntity) => {
-        if (post.likes?.find((like: LikeEntity) => { return like.user.id == ctx.authUser?.id })) {
+        if (
+          post.likes?.find((like: LikeEntity) => {
+            return like.user.id == ctx.authUser?.id;
+          })
+        ) {
           post.likedByAuthUser = true;
         }
       });
@@ -161,24 +165,24 @@ const resolvers: Resolvers = {
     },
   },
   Mutation: {
-    post: async (_, args, {authUser, orm}: Context) => {
-
-
+    post: async (_, args, { authUser, orm }: Context) => {
       if (!authUser) {
-        throw new ApolloError("Not authenticated")
+        throw new ApolloError("Not authenticated");
       }
 
-      const post = orm.postRepository.create(
-        {
-          text: args.text,
-          image: args.image,
-          author: await orm.userRepository.findOneBy({ id: authUser.id })
-        } as unknown as PostEntity
+      const post = orm.postRepository.create({
+        text: args.text,
+        image: args.image,
+        author: await orm.userRepository.findOneBy({ id: authUser.id }),
+      } as unknown as PostEntity);
+      await orm.userRepository.update(
+        { id: authUser?.id },
+        { postsCount: post.author.postsCount + 1 }
       );
-      await orm.userRepository.update({ id: authUser?.id }, { postsCount: post.author.postsCount + 1 });
       const savedPost = await orm.postRepository.save(post);
       return savedPost as unknown as Post;
     },
+
     comment: async (_, args, { orm, authUser }: Context) => {
       const postId = parseInt(args.postId, 10);
       if (!authUser) {
@@ -270,9 +274,9 @@ const resolvers: Resolvers = {
       const like = await orm.likeRepository.findOne({
         where: {
           post: { id: postId },
-          user: { id: authUser.id }
+          user: { id: authUser.id },
         },
-        relations: ["user", "post"]
+        relations: ["user", "post"],
       });
 
       if (!like) {
@@ -287,7 +291,7 @@ const resolvers: Resolvers = {
 
       if (like.post.likesCount >= 1) {
         await orm.postRepository.update(like.post.id, {
-          likesCount: like.post.likesCount - 1
+          likesCount: like.post.likesCount - 1,
         });
       }
 

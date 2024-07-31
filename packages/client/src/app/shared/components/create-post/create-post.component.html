@@ -5,7 +5,7 @@
       mode="indeterminate"
       *ngIf="loading"
     ></mat-progress-bar>
-    <img mat-card-avatar class="auth-user-image" src="{{ authUser.image }}" />
+    <img mat-card-avatar class="auth-user-image" src="{{ authUser?.image }}" />
     <textarea
       #postText
       class="post-box"

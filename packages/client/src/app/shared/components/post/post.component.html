@@ -1,8 +1,8 @@
 <mat-card class="post-wrapper" *ngIf="post">
   <mat-card-header>
-    <img mat-card-avatar class="post-user-avatar" [src]="post.author?.image" />
+    <img mat-card-avatar class="post-user-avatar" [src]="post.author.image" />
     <mat-card-title>
-      {{ post.author?.fullName }}
+      {{ post.author.fullName }}
     </mat-card-title>
     <mat-card-subtitle>
       {{ post.createdAt }}
@@ -39,7 +39,7 @@
     </div>
     <div class="engagement-actions">
       <button
-        [style.color]="post?.likedByAuthUser ? 'red' : 'black'"
+        [style.color]="post.likedByAuthUser ? 'red' : 'black'"
         mat-button
         (click)="sendLike()"
       >

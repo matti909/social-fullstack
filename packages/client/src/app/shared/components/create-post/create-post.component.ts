@@ -3,10 +3,10 @@ import {
   ElementRef,
   EventEmitter,
   Input,
+  OnInit,
   Output,
   ViewChild,
 } from '@angular/core';
-
 import { User } from '@ngsocial/graphql/types';
 import { PostEvent } from 'src/app/shared';
 
@@ -15,19 +15,21 @@ import { PostEvent } from 'src/app/shared';
   templateUrl: './create-post.component.html',
   styleUrls: ['./create-post.component.scss'],
 })
-export class CreatePostComponent  {
+export class CreatePostComponent implements OnInit {
   @Input() authUser!: Partial<User>;
   @Input() loading: boolean = false;
   @Output() post: EventEmitter<PostEvent> = new EventEmitter();
   public imageFile: File | null = null;
   @ViewChild('postText') postText!: ElementRef;
+  constructor() {}
 
+  ngOnInit(): void {}
   get userFirstName() {
     return this.authUser?.fullName?.split(' ')?.shift();
   }
-
   onFileSelected(event: Event): void {
     const files: FileList = (event.target as HTMLInputElement).files!;
+    console.log(files);
     if (files.length > 0) {
       this.imageFile = files[0];
     }
@@ -45,6 +47,4 @@ export class CreatePostComponent  {
     }
     this.imageFile = null;
   }
-
-
 }

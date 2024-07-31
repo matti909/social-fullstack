@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { CreatePostsComponent } from './components/create-posts/create-posts.component';
 import { PostsComponent } from './components/posts/posts.component';
 import { DialogComponent } from './components/dialog/dialog.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -15,8 +14,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatBadgeModule } from '@angular/material/badge';
-import { CreatePostComponent } from '../core/components/create-post/create-post.component';
 import { PostComponent } from './components/post/post.component';
+import { CreatePostComponent } from './components/create-post/create-post.component';
 
 const matModules = [
   MatToolbarModule,
@@ -39,13 +38,17 @@ const matModules = [
 
 @NgModule({
   declarations: [
-    CreatePostsComponent,
     PostsComponent,
     DialogComponent,
-    CreatePostComponent,
     PostComponent,
+    CreatePostComponent,
   ],
   imports: [CommonModule, ReactiveFormsModule, matModules],
-  exports: [ReactiveFormsModule, matModules, CreatePostComponent, PostComponent],
+  exports: [
+    ReactiveFormsModule,
+    matModules,
+    PostComponent,
+    CreatePostComponent,
+  ],
 })
 export class SharedModule {}

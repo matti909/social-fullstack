@@ -59,7 +59,7 @@ export class ProfileComponent extends BaseComponent {
             },
           });
         };
-        return qRef.valueChanges; 
+        return qRef.valueChanges;
       }),
       takeUntil(this.destroyNotifier)
     );

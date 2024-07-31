@@ -7,3 +7,5 @@ package-lock*.json
 .DS_Stores
 
 *packages/server/.env
+
+*packages/server/yarn.lock
