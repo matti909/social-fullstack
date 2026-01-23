@@ -1,3 +1,5 @@
+@use '@angular/material' as mat;
+
 :root {
   width: 100%;
   min-height: 100%;
@@ -5,4 +7,13 @@
   padding: 1rem;
   box-sizing: inherit;
   position: relative;
+}
+
+html {
+  color-scheme: light dark;
+  @include mat.theme((
+    color: mat.$violet-palette,
+    typography: Roboto,
+    density: 0
+  ));
 }
