@@ -1,3 +1,4 @@
+import { DeepPartial } from '@apollo/client/utilities';
 import { Observable } from 'rxjs';
 import { User } from '../models/user.model';
 
@@ -8,7 +9,7 @@ export type UsersResponse = {
   searchUsers: User[];
 };
 export type SearchUsersResponse = {
-  data: Observable<UsersResponse | undefined>;
+  data: Observable<UsersResponse | DeepPartial<UsersResponse> | undefined>;
   fetchMore: (users: User[]) => void;
 };
 

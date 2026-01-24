@@ -13,7 +13,7 @@ import {
   MaybeNullOrUndefined,
   RegisterResponse,
 } from '../../shared/types/auth';
-import { SearchUsersResponse, UsersResponse } from '../../shared/types/user';
+import { SearchUsersResponse, SearchUsersVariables, UsersResponse } from '../../shared/types/user';
 import { User } from '../../shared/models/user.model';
 
 @Injectable({
@@ -115,10 +115,12 @@ export class AuthService {
   ): Observable<MaybeNullOrUndefined<RegisterResponse>> {
     return this.registerGQL
       .mutate({
-        fullName,
-        username,
-        email,
-        password,
+        variables: {
+          fullName,
+          username,
+          email,
+          password,
+        },
       })
       .pipe(
         map((result) => result.data),
@@ -133,8 +135,10 @@ export class AuthService {
   login(email: string, password: string): Observable<MaybeNullOrUndefined<LoginResponse>> {
     return this.loginGQL
       .mutate({
-        email,
-        password,
+        variables: {
+          email,
+          password,
+        },
       })
       .pipe(
         map((result) => result.data),
@@ -147,11 +151,13 @@ export class AuthService {
   }
 
   getUser(userId: string) {
-    return this.getUserGQL.watch({ userId }).valueChanges.pipe(map((result) => result.data));
+    return this.getUserGQL
+      .watch({ variables: { userId } })
+      .valueChanges.pipe(map((result) => result.data));
   }
 
   searchUsers(searchQuery: string, offset: number, limit: number): SearchUsersResponse {
-    const feedQuery = this.apollo.watchQuery<UsersResponse>({
+    const feedQuery = this.apollo.watchQuery<UsersResponse, SearchUsersVariables>({
       query: SEARCH_USERS_QUERY,
       variables: {
         searchQuery,

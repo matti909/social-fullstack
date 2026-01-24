@@ -12,11 +12,13 @@
         <mat-hint align="start"> Password should be at least six characters </mat-hint>
       </mat-form-field>
 
-      <p *ngIf="errorMessage" class="error">
-        {{ errorMessage }}
-      </p>
+      @if (errorMessage) {
+        <p class="error">
+          {{ errorMessage }}
+        </p>
+      }
 
-      <span>    
+      <span>
         If you don't have an account, please <a routerLink="/users/signup">register</a> first.
       </span>
       <button type="submit" mat-raised-button color="primary">Log In</button>
