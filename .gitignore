@@ -9,3 +9,6 @@ package-lock*.json
 *packages/server/.env
 
 *packages/server/yarn.lock
+
+pnpm-lock.yaml
+pnpm-workspace.yaml

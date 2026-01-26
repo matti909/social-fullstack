@@ -3,21 +3,34 @@ FROM node:16.4.2-alpine as build
 
 WORKDIR /app
 
-COPY package.json .
+# Copiar ambos paquetes
+COPY server/package.json ./server/
+COPY graphql-types/package.json ./graphql-types/
+
+WORKDIR /app/server
 RUN npm install --legacy-peer-deps
 
-COPY . .
-RUN npm run build
+WORKDIR /app/graphql-types
+RUN npm install --legacy-peer-deps
+
+WORKDIR /app
+COPY graphql-types ./graphql-types
+COPY server ./server
+
+# Compilar server (--build compila también las referencias)
+WORKDIR /app/server
+RUN npx tsc --build
 
 # Stage 2: Producción
 FROM node:16.4.2-alpine
 
 WORKDIR /app
 
-COPY --from=build /app/package.json .
-COPY --from=build /app/build ./build
+COPY --from=build /app/server/package.json .
+COPY --from=build /app/server/dist ./dist
+COPY --from=build /app/graphql-types ../graphql-types
 
-RUN npm install 
+RUN npm install --legacy-peer-deps --production
 
 EXPOSE 4000
 
