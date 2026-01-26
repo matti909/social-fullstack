@@ -20,6 +20,8 @@ COPY server ./server
 # Compilar server (--build compila también las referencias)
 WORKDIR /app/server
 RUN npx tsc --build
+# Copiar archivos no-TS al dist
+RUN cp -r src/graphql/*.graphql dist/src/graphql/
 
 # Stage 2: Producción
 FROM node:16.4.2-alpine
@@ -34,4 +36,4 @@ RUN npm install --legacy-peer-deps --production
 
 EXPOSE 4000
 
-CMD [ "npm", "start" ]
+CMD [ "node", "dist/src/index.js" ]

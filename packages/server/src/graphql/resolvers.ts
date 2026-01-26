@@ -6,7 +6,7 @@ import {
   Resolvers,
   User,
 } from "@ngsocial/graphql";
-import { ApolloError } from "apollo-server-errors";
+import { ApolloError } from "apollo-server-express";
 import AWS from "aws-sdk";
 import crypto from "crypto";
 import dotenv from "dotenv";

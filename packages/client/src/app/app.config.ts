@@ -26,7 +26,7 @@ export const appConfig: ApplicationConfig = {
         operation.setContext({
           headers: new HttpHeaders().set(
             'Authorization',
-            accessToken ? `Bearer ${accessToken}` : '',
+            accessToken ? `JWT ${accessToken}` : '',
           ),
         });
 
